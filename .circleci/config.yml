@@ -15,6 +15,10 @@ jobs:
       - run: mv result.txt old_result.txt
       - run: npm audit --json > npm_audit.json || echo ''
       - run:
+          cat npm_audit.json |
+          jq '.advisories | .[] | (.id | tostring) + " " + .severity' |
+          sed 's/"//g' > audit_advisories.log
+      - run:
           while read id severity; do
           echo "https://npmjs.com/advisories/$id ($severity)";
           cat npm_audit.json |
