@@ -3,25 +3,23 @@ jobs:
   audit:
     docker:
       - image: node:10.13.0
-    working_directory: ~/src
+    working_directory: ~/src/test
     steps:
+      - checkout:
+          path: ~/src
       - run: apt-get update && apt-get install jq
-      - checkout
+      - run: touch result.txt
       - restore_cache:
           # get latest cache
           keys: ["npm-audit-result-"]
       - run: mv result.txt old_result.txt
+      - run: npm audit --json >> npm_audit.json
       - run:
-          command: npm audit --json >> npm_audit.json
-          working_directory: ~/src/test
-      - run:
-          command:
-            while read id severity; do
-            echo "https://npmjs.com/advisories/$id ($severity)";
-            cat npm_audit.json |
-            jq  ".advisories | .\"${id}\" | .findings | .[] | .paths[]" |
-            sed 's/^/  /'; done < audit_advisories.log > result.txt
-          working_directory: ~/src/test
+          while read id severity; do
+          echo "https://npmjs.com/advisories/$id ($severity)";
+          cat npm_audit.json |
+          jq  ".advisories | .\"${id}\" | .findings | .[] | .paths[]" |
+          sed 's/^/  /'; done < audit_advisories.log > result.txt
       - save_cache:
           paths: ["result.txt"]
           key: npm-audit-result-{{ .BuildNum }}
