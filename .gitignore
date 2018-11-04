@@ -1,1 +1,3 @@
 node_modules
+audit_advisories.log
+npm_audit.json
