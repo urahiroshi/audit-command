@@ -7,7 +7,7 @@ orbs:
           - image: node:10.13.0
     jobs:
       diff:
-        executer: default
+        executor: default
         parameters:
           checkout_path:
             type: string
