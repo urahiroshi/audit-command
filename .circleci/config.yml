@@ -46,5 +46,5 @@ workflows:
   build:
     jobs:
       - npm-audit/diff:
-          checkout-path: ~/repo
-          working-directory: ~/repo/test
+          checkout_path: ~/repo
+          working_directory: ~/repo/test
