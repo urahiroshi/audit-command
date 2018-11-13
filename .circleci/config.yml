@@ -31,8 +31,6 @@ orbs:
             type: string
             default: .diff.log
         steps:
-          - checkout:
-              path: "<< parameters.checkout_path >>"
           - run: apt-get update && apt-get install jq
           - run: touch .result.txt
           - restore_cache:
@@ -54,7 +52,7 @@ orbs:
               paths: [".result.txt"]
               key: npm-audit-result-{{ .BuildNum }}
           - run: cat .result.txt
-          - run: diff -u .old_result.txt .result.txt > << parameters.diff_file >> || echo ''
+          - run: diff -u .old_result.txt .result.txt > << parameters.diff_out >> || echo ''
           - run: cat << parameters.diff_out >>
 
 workflows:
