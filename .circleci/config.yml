@@ -7,7 +7,7 @@ orbs:
           - image: node:10.13.0
     jobs:
       diff:
-        executor: default
+        executer: default
         parameters:
           checkout_path:
             type: string
@@ -15,7 +15,21 @@ orbs:
           working_directory:
             type: string
             default: ~/project
+          diff_out:
+            type: string
+            default: .diff.log
         working_directory: "<< parameters.working_directory >>"
+        steps:
+          - checkout:
+              path: "<< parameters.checkout_path >>"
+          - audit_diff:
+              diff_out: "<< parameters.diff_out >>"
+    commands:
+      audit_diff:
+        parameters:
+          diff_out:
+            type: string
+            default: .diff.log
         steps:
           - checkout:
               path: "<< parameters.checkout_path >>"
@@ -40,7 +54,8 @@ orbs:
               paths: [".result.txt"]
               key: npm-audit-result-{{ .BuildNum }}
           - run: cat .result.txt
-          - run: diff -u .old_result.txt .result.txt
+          - run: diff -u .old_result.txt .result.txt > << parameters.diff_file >> || echo ''
+          - run: cat << parameters.diff_out >>
 
 workflows:
   build:
