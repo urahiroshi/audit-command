@@ -1,59 +1,16 @@
 version: "2.1"
 orbs:
-  npm-audit:
-    executors:
-      default:
-        docker:
-          - image: node:10.13.0
-    jobs:
-      diff:
-        executor: default
-        parameters:
-          checkout_path:
-            type: string
-            default: ~/project
-          working_directory:
-            type: string
-            default: ~/project
-          diff_out:
-            type: string
-            default: .diff.log
-        working_directory: "<< parameters.working_directory >>"
-        steps:
-          - checkout:
-              path: "<< parameters.checkout_path >>"
-          - audit_diff:
-              diff_out: "<< parameters.diff_out >>"
-    commands:
-      audit_diff:
-        parameters:
-          diff_out:
-            type: string
-            default: .diff.log
-        steps:
-          - run: apt-get update && apt-get install jq
-          - run: touch .result.txt
-          - restore_cache:
-              # get latest cache
-              keys: ["npm-audit-result-"]
-          - run: mv .result.txt .old_result.txt
-          - run: npm audit --json > .npm_audit.json || echo ''
-          - run:
-              cat .npm_audit.json |
-              jq '.advisories | .[] | (.id | tostring) + " " + .severity' |
-              sed 's/"//g' > .audit_advisories.log
-          - run:
-              while read id severity; do
-              echo "https://npmjs.com/advisories/$id ($severity)";
-              cat .npm_audit.json |
-              jq  ".advisories | .\"${id}\" | .findings | .[] | .paths[]" |
-              sed 's/^/  /'; done < .audit_advisories.log > .result.txt
-          - save_cache:
-              paths: [".result.txt"]
-              key: npm-audit-result-{{ .BuildNum }}
-          - run: cat .result.txt
-          - run: diff -u .old_result.txt .result.txt > << parameters.diff_out >> || echo ''
-          - run: cat << parameters.diff_out >>
+  npm-audit: urahiroshi/npm-audit@1.0.2
+
+jobs:
+  diff:
+    executor: npm-audit/default
+    working_directory: ~/repo/test
+    steps:
+      - checkout:
+          path: ~/repo
+      - audit_diff:
+          diff_out: .diff.log
 
 workflows:
   build:

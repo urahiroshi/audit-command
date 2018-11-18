@@ -1,0 +1,37 @@
+version: "2.1"
+
+executors:
+  default:
+    docker:
+      - image: node:10.13.0
+
+commands:
+  audit_diff:
+    parameters:
+      diff_out:
+        type: string
+        default: .diff.log
+    steps:
+      - run: apt-get update && apt-get install jq
+      - run: touch .result.txt
+      - restore_cache:
+          # get latest cache
+          keys: ["npm-audit-result-"]
+      - run: mv .result.txt .old_result.txt
+      - run: npm audit --json > .npm_audit.json || echo ''
+      - run:
+          cat .npm_audit.json |
+          jq '.advisories | .[] | (.id | tostring) + " " + .severity' |
+          sed 's/"//g' > .audit_advisories.log
+      - run:
+          while read id severity; do
+          echo "https://npmjs.com/advisories/$id ($severity)";
+          cat .npm_audit.json |
+          jq  ".advisories | .\"${id}\" | .findings | .[] | .paths[]" |
+          sed 's/^/  /'; done < .audit_advisories.log > .result.txt
+      - save_cache:
+          paths: [".result.txt"]
+          key: npm-audit-result-{{ .BuildNum }}
+      - run: cat .result.txt
+      - run: diff -u .old_result.txt .result.txt > << parameters.diff_out >> || echo ''
+      - run: cat << parameters.diff_out >>
