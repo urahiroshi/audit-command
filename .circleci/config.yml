@@ -9,7 +9,7 @@ jobs:
     steps:
       - checkout:
           path: ~/repo
-      - audit_diff:
+      - npm-audit/audit_diff:
           diff_out: .diff.log
 
 workflows:
