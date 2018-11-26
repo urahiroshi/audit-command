@@ -1,6 +1,6 @@
 version: "2.1"
 orbs:
-  npm-audit: urahiroshi/npm-audit@1.0.2
+  npm-audit: urahiroshi/npm-audit@1.0.3
 
 jobs:
   diff:
@@ -11,6 +11,7 @@ jobs:
           path: ~/repo
       - npm-audit/audit_diff:
           diff_out: .diff.log
+          cache_key_prefix: custom-cache-key
 
 workflows:
   build:
