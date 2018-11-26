@@ -11,12 +11,15 @@ commands:
       diff_out:
         type: string
         default: .diff.log
+      cache_key_prefix:
+        type: string
+        default: npm-audit-result
     steps:
       - run: apt-get update && apt-get install jq
       - run: touch .result.txt
       - restore_cache:
           # get latest cache
-          keys: ["npm-audit-result-"]
+          keys: ["<< parameters.cache_key_prefix >>-"]
       - run: mv .result.txt .old_result.txt
       - run: npm audit --json > .npm_audit.json || echo ''
       - run:
@@ -31,7 +34,7 @@ commands:
           sed 's/^/  /'; done < .audit_advisories.log > .result.txt
       - save_cache:
           paths: [".result.txt"]
-          key: npm-audit-result-{{ .BuildNum }}
+          key: "<< parameters.cache_key_prefix >>-{{ .BuildNum }}"
       - run: cat .result.txt
       - run: diff -u .old_result.txt .result.txt > << parameters.diff_out >> || echo ''
       - run: cat << parameters.diff_out >>
