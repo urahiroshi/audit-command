@@ -15,7 +15,7 @@ commands:
         type: string
         default: npm-audit-result
     steps:
-      - run: apt-get update && apt-get install jq
+      - run: apt-get update && apt-get install -y jq
       - run: touch .result.txt
       - restore_cache:
           # get latest cache
