@@ -1,6 +1,6 @@
 version: "2.1"
 orbs:
-  npm-audit: urahiroshi/npm-audit@1.0.3
+  npm-audit: urahiroshi/npm-audit@1.0.4
 
 jobs:
   diff:
